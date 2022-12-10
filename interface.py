@@ -114,7 +114,9 @@ class MyWindow(QMainWindow):
 
     def label_onClick(self):
         print("label")
-
+        text, ok = QInputDialog.getText(self, "Input", "Enter security digits")
+        print("Text: ", text)
+        print("Ok: ", ok)
 
     def update(self):
         self.lFileName.adjustSize()
