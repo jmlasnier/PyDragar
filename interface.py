@@ -1,21 +1,16 @@
-
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QThreadPool
-from PyQt5.QtGui import QMovie, QFont,QPixmap, QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QPixmap, QIcon
 import sys
-import tkinter as tk
-tk.Tk().withdraw()
-# import db_queries
+import poste_canada
 
-
-############
 
 class MyWindow(QMainWindow):
     xpos = 200
     ypos = 500
-    width = 1200
-    height = 600
+    width = 800
+    height = 300
     file_path = ""
     folder_path = ""
     fileName = ""
@@ -23,7 +18,6 @@ class MyWindow(QMainWindow):
     isFolder = None
     filesInFolder = []
     backEnd_Feedback_Message = None
-
 
     def __init__(self):
         super(MyWindow, self).__init__()
@@ -36,7 +30,7 @@ class MyWindow(QMainWindow):
         self.move(qtRectangle.topLeft())
 
         self.setWindowTitle("Dragar Admin")
-        self.setWindowIcon(QIcon("soccer.png"))
+        self.setWindowIcon(QIcon("./dg.png"))
         self.initUI()
         
         # self.fillReleasedTable()
@@ -52,14 +46,14 @@ class MyWindow(QMainWindow):
         self.lempty = QtWidgets.QLabel(self)
         self.lempty.setText("")
         self.lempty.adjustSize()
-        self.lempty.move(50,50)
+        self.lempty.move(50, 50)
 
-        bigpixmap = QPixmap("soccer.png")
-        self.pixmap = bigpixmap.scaled(int(self.width/3), int(self.height/3), Qt.KeepAspectRatio, Qt.FastTransformation)
+        bigpixmap = QPixmap("./soccer.png")
+        self.pixmap = bigpixmap.scaled(int(self.width), int(self.height), Qt.KeepAspectRatio, Qt.FastTransformation)
         self.llogo = QtWidgets.QLabel(self)
         self.llogo.setPixmap(self.pixmap)
         self.llogo.adjustSize()
-        self.llogo.move(50,50)
+        self.llogo.move(50, 50)
         # Optional, resize label to image size
         self.llogo.resize(self.pixmap.width(),
                           self.pixmap.height())
@@ -74,25 +68,23 @@ class MyWindow(QMainWindow):
         self.bAchat = QtWidgets.QPushButton(self)
         self.bAchat.setText("Achat")
         self.bAchat.adjustSize()
-        self.bAchat.clicked.connect(self.achat_OnClick)
+        self.bAchat.clicked.connect(self.achat_onClick)
 
-        
         self.bSoumission = QtWidgets.QPushButton(self)
-        self.bSoumission.setText("bSoumission")
+        self.bSoumission.setText("Soumission")
         self.bSoumission.adjustSize()
-        self.bSoumission.clicked.connect(self.soumission_OnClick)
+        self.bSoumission.clicked.connect(self.soumission_onClick)
 
         self.bShippingLabel = QtWidgets.QPushButton(self)
         self.bShippingLabel.setText("ShippingLabel")
         self.bShippingLabel.adjustSize()
-        self.bShippingLabel.clicked.connect(self.label_onClick)
+        self.bShippingLabel.clicked.connect(self.shipping_label_onClick)
 
 
         mainW = QtWidgets.QWidget()
         layout = QVBoxLayout()
         mainW.setLayout(layout)
         self.setCentralWidget(mainW)
-
 
         layout.addWidget(self.llogo)
         layout.addWidget(self.lPyDragar)
@@ -101,22 +93,25 @@ class MyWindow(QMainWindow):
         layout.addWidget(self.bShippingLabel)
         layout.addStretch()
 
-   
-        
-
-### Clicked functi
-
-    def achat_OnClick(self):
+    # Clicked functi
+    def achat_onClick(self):
         print("achat")
 
-    def soumission_OnClick(self):
+    def soumission_onClick(self):
         print("soumission")
-
-    def label_onClick(self):
-        print("label")
         text, ok = QInputDialog.getText(self, "Input", "Enter security digits")
         print("Text: ", text)
         print("Ok: ", ok)
+
+    def shipping_label_onClick(self):
+        # todo: disable shipping label button
+        # todo: add fire spinner
+        name_ship = "Jean-Michel Lasnier"
+        email_ship = "guil.lvsq@gmail.com"
+        adress_ship = "133 Rue Lapointe, Lachute, QC J8H 4L8"
+        PO_ship = "D22091865-1"
+        type_ship = "S"
+        [label_path, shipping_price] = poste_canada.poste_can(email_ship, name_ship, adress_ship, PO_ship, type_ship, self)
 
     def update(self):
         self.lFileName.adjustSize()
