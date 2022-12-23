@@ -1,4 +1,3 @@
-import re
 import time
 import pyautogui
 from PyQt5.QtWidgets import QInputDialog
@@ -12,19 +11,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 pyautogui.PAUSE = 1
 pyautogui.FAILSAFE = True
-gran_pause = 3
-search_time = 20
+gran_pause = 2
+search_time = 30
 
 std_dim1 = "19.5"
 std_dim2 = "25.5"
 std_dim3 = "1"
-std_weight = "17.5"
-
-name_ship = "Luc Plouffe"
-email_ship = "guil.lvsq@gmail.com"
-adress_ship = "133 Rue Lapointe, Lachute, QC J8H 4L8"
-PO_ship = "D22091865-1"
-type_ship = "S"
+std_weight = "10.5"
 
 label_path = "C:/Users/g-lev/My Drive/Dragar Inc/ventes et achats/factures recues/shipping labels/"
 
@@ -69,6 +62,42 @@ def poste_can(
 
     def is_present(xpath):
         return len(driver.find_elements(By.XPATH, xpath)) > 0
+
+    def popup_summary_info():
+        # get adresse
+        poste_can_found_adress = get_value_when_appears(
+            '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[1]/mat-accordion/mat-expansion-panel[2]/div/div/app-to-container/div/app-to-summary/div/div/div[1]/div[1]/span')
+        poste_can_found_adress += "\n" + get_value_when_appears(
+            '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[1]/mat-accordion/mat-expansion-panel[2]/div/div/app-to-container/div/app-to-summary/div/div/div[1]/div[3]/span')
+        poste_can_found_adress += ", " + get_value_when_appears(
+            '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[1]/mat-accordion/mat-expansion-panel[2]/div/div/app-to-container/div/app-to-summary/div/div/div[1]/div[5]/span[1]')
+        poste_can_found_adress += " " + get_value_when_appears(
+            '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[1]/mat-accordion/mat-expansion-panel[2]/div/div/app-to-container/div/app-to-summary/div/div/div[1]/div[5]/span[2]')
+        poste_can_found_adress += get_value_when_appears(
+            '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[1]/mat-accordion/mat-expansion-panel[2]/div/div/app-to-container/div/app-to-summary/div/div/div[1]/div[5]/span[3]')
+
+        # get shipping price
+        shipping_price_brut = get_value_when_appears('//*[@id="totalPrice"]')
+
+        # todo: edit shipping price here ?
+        # shipping_price_moins_brut = re.match(r"\d*.\d*", shipping_price_brut).group()
+        # shipping_price = shipping_price_moins_brut
+        # shipping_price = re.sub(r"\,", ".", shipping_price_moins_brut)
+        # shipping_price_moins_brut = re.match(r"\d*,\d*", shipping_price_brut).group()
+
+        # pyautogui.hotkey('alt', 'tab')
+
+        popup_text_to_display = "Adresse cherchée:\n" + client_adr
+        popup_text_to_display += "\n\nAdresse trouvée:\n" + poste_can_found_adress
+        popup_text_to_display += "\n\nPrix estimé : " + shipping_price_brut
+        popup_text_to_display += "\nPour confirmer, entrer CVV carte de credit"
+        cvv_input, ok = QInputDialog.getText(self, "Confirmation", popup_text_to_display)
+        cvv_input = str(cvv_input)
+        # print("Cvv: ", cvv_input)
+        # print("Ok: ", ok)
+        # print('goToNext: ', cvv_input != '' and ok)
+
+        return [cvv_input != '' and ok, shipping_price_brut, cvv_input]
 
     # connect
     time.sleep(gran_pause)
@@ -175,36 +204,41 @@ def poste_can(
     driver.find_element(By.XPATH, esti).send_keys("100")
     click_button_when_appears('//*[@id="serviceNext"]')
 
-    # get shipping price
-    shipping_price_brut = get_value_when_appears('//*[@id="totalPrice"]')
-    try:
-        shipping_price_moins_brut = re.match(r"\d*,\d*", shipping_price_brut).group()
-
-    except:
-        shipping_price_moins_brut = re.match(r"\d*.\d*", shipping_price_brut).group()
-
-    shipping_price = re.sub(r"\,", ".", shipping_price_moins_brut)
-    print("paiement à faire")
     pyautogui.hotkey('alt', 'tab')
+    go_to_payment = False
+    while go_to_payment is False:
+        [go_to_payment, shipping_price_brut, cvv] = popup_summary_info()
 
-    # todo: afficher l'adresse et prix sur le popup
-    text, ok = QInputDialog.getText(self, "Input", "Enter security digits")
-    print("Text: ", text)
-    print("Ok: ", ok)
+    pyautogui.hotkey('alt', 'tab')
+    time.sleep(gran_pause)
+    add_to_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[3]/app-summary/div/div/div/div/app-summary-content/div/div/div[2]/button'
+    click_button_when_appears(add_to_cart_btn)
+    confirm_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-cart/div[2]/div/div/div[2]/button'
+    click_button_when_appears(confirm_cart_btn)
 
-    # todo: automatiser les boutons pour paiement avec le security code,
-    #  jusqu'au screen de payment complete
+    pay_iframe = '//*[@id="cpwa__frame"]'
+    WebDriverWait(driver, search_time).until(ec.visibility_of_element_located((By.XPATH, pay_iframe)))
+    iframe = driver.find_element(By.XPATH, pay_iframe)
+    driver.switch_to.frame(iframe)
+    cvv_input_field = '//*[@id="STORED-4022_cvv"]'
+    type_when_appears(cvv_input_field, cvv)
+
+    # todo: uncomment click Pay button when rdy to test
+    pay_btn = '/html/body/div[2]/div[2]/form/div[7]/div[4]/p/input'
+    click_button_when_appears(pay_btn)
+    time.sleep(gran_pause)
+    driver.switch_to.default_content()
 
     # screen de payment complete
-    print("10 sec pour retourner à la page de confirmation")
-    time.sleep(10)
+    # print("10 sec pour retourner à la page de confirmation")
+    # time.sleep(10)
     click_button_when_appears('//*[@id="printLabel"]')
 
-    time.sleep(15)
+    time.sleep(5)
     pyautogui.hotkey('ctrl', 'p')
-    time.sleep(10)
+    time.sleep(5)
     pyautogui.press(['enter'])
-    time.sleep(10)
+    time.sleep(5)
     ship_file_name = client_order_id + " - shipping label"
     pyautogui.write(ship_file_name)
     time.sleep(2)
@@ -217,9 +251,6 @@ def poste_can(
     pyautogui.hotkey('alt', 's')
     time.sleep(10)
     full_ship_path = label_path + ship_file_name + ".pdf"
-    return [full_ship_path, shipping_price]
 
-
-# test eh
-if __name__ == "__main__":
-    poste_can(email_ship, name_ship, adress_ship, PO_ship, type_ship)
+    # todo: maybe edit shipping price? from xx.xx to xx,xx (virgule)
+    return [full_ship_path, shipping_price_brut]

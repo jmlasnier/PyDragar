@@ -38,8 +38,6 @@ class MyWindow(QMainWindow):
     def initUI(self):
         w = QtWidgets.QWidget()
         self.setCentralWidget(w)
-        grid = QtWidgets.QGridLayout(w)
-
         self.setFont(QFont('Arial', 18))
 
         ###LABELS
@@ -68,17 +66,17 @@ class MyWindow(QMainWindow):
         self.bAchat = QtWidgets.QPushButton(self)
         self.bAchat.setText("Achat")
         self.bAchat.adjustSize()
-        self.bAchat.clicked.connect(self.achat_onClick)
+        self.bAchat.clicked.connect(self.achat_on_click)
 
         self.bSoumission = QtWidgets.QPushButton(self)
         self.bSoumission.setText("Soumission")
         self.bSoumission.adjustSize()
-        self.bSoumission.clicked.connect(self.soumission_onClick)
+        self.bSoumission.clicked.connect(self.soumission_on_click)
 
         self.bShippingLabel = QtWidgets.QPushButton(self)
         self.bShippingLabel.setText("ShippingLabel")
         self.bShippingLabel.adjustSize()
-        self.bShippingLabel.clicked.connect(self.shipping_label_onClick)
+        self.bShippingLabel.clicked.connect(self.shipping_label_on_click)
 
 
         mainW = QtWidgets.QWidget()
@@ -94,28 +92,25 @@ class MyWindow(QMainWindow):
         layout.addStretch()
 
     # Clicked functi
-    def achat_onClick(self):
+    def achat_on_click(self):
         print("achat")
 
-    def soumission_onClick(self):
+    def soumission_on_click(self):
         print("soumission")
-        text, ok = QInputDialog.getText(self, "Input", "Enter security digits")
-        print("Text: ", text)
-        print("Ok: ", ok)
 
-    def shipping_label_onClick(self):
+    def shipping_label_on_click(self):
         # todo: disable shipping label button
-        # todo: add fire spinner
         name_ship = "Jean-Michel Lasnier"
         email_ship = "guil.lvsq@gmail.com"
         adress_ship = "133 Rue Lapointe, Lachute, QC J8H 4L8"
         PO_ship = "D22091865-1"
         type_ship = "S"
         [label_path, shipping_price] = poste_canada.poste_can(email_ship, name_ship, adress_ship, PO_ship, type_ship, self)
+        print('label_path: ', label_path)
+        print('shipping_price: ', shipping_price)
 
     def update(self):
         self.lFileName.adjustSize()
-
 
 
 def window():
