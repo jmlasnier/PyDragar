@@ -1,9 +1,14 @@
+import webbrowser
+
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap, QIcon
 import sys
+import clipboard
+import googlesheet
 import poste_canada
+from DragarAdmin import DragarAdmin
 
 
 class MyWindow(QMainWindow):
@@ -14,6 +19,7 @@ class MyWindow(QMainWindow):
     file_path = ""
     folder_path = ""
     fileName = ""
+    dragarAdmin = DragarAdmin()
     isReleased = 0
     isFolder = None
     filesInFolder = []
@@ -46,7 +52,7 @@ class MyWindow(QMainWindow):
         self.lempty.adjustSize()
         self.lempty.move(50, 50)
 
-        bigpixmap = QPixmap("./soccer.png")
+        bigpixmap = QPixmap("./logo.png")
         self.pixmap = bigpixmap.scaled(int(self.width), int(self.height), Qt.KeepAspectRatio, Qt.FastTransformation)
         self.llogo = QtWidgets.QLabel(self)
         self.llogo.setPixmap(self.pixmap)
@@ -59,25 +65,39 @@ class MyWindow(QMainWindow):
 
         ###BUTTONS
         self.lPyDragar = QtWidgets.QLabel(self)
-        self.lPyDragar.setText("PyDragar")
+        self.lPyDragar.setText("Admin Menu")
         self.lPyDragar.adjustSize()
         self.lPyDragar.setFont(QFont('Arial', 12))
 
-        self.bAchat = QtWidgets.QPushButton(self)
-        self.bAchat.setText("Achat")
-        self.bAchat.adjustSize()
-        self.bAchat.clicked.connect(self.achat_on_click)
+        self.bVente = QtWidgets.QPushButton(self)
+        self.bVente.setText("Run Vente")
+        self.bVente.adjustSize()
+        self.bVente.clicked.connect(self.vente_on_click)
 
         self.bSoumission = QtWidgets.QPushButton(self)
-        self.bSoumission.setText("Soumission")
+        self.bSoumission.setText("Run Soumission")
         self.bSoumission.adjustSize()
         self.bSoumission.clicked.connect(self.soumission_on_click)
 
         self.bShippingLabel = QtWidgets.QPushButton(self)
-        self.bShippingLabel.setText("ShippingLabel")
+        self.bShippingLabel.setText("Run ShippingLabel")
         self.bShippingLabel.adjustSize()
         self.bShippingLabel.clicked.connect(self.shipping_label_on_click)
 
+        self.bClipboardFrench = QtWidgets.QPushButton(self)
+        self.bClipboardFrench.setText("Fill Clipboard French")
+        self.bClipboardFrench.adjustSize()
+        self.bClipboardFrench.clicked.connect(self.french_clipboard_on_click)
+
+        self.bClipboardEnglish = QtWidgets.QPushButton(self)
+        self.bClipboardEnglish.setText("Fill Clipboard English")
+        self.bClipboardEnglish.adjustSize()
+        self.bClipboardEnglish.clicked.connect(self.english_clipboard_on_click)
+
+        self.bNewSS = QtWidgets.QPushButton(self)
+        self.bNewSS.setText("New spreadsheet")
+        self.bNewSS.adjustSize()
+        self.bNewSS.clicked.connect(self.new_ss_on_click)
 
         mainW = QtWidgets.QWidget()
         layout = QVBoxLayout()
@@ -86,17 +106,38 @@ class MyWindow(QMainWindow):
 
         layout.addWidget(self.llogo)
         layout.addWidget(self.lPyDragar)
-        layout.addWidget(self.bAchat)
+        layout.addWidget(self.bNewSS)
+        layout.addWidget(self.bVente)
+        layout.addWidget(self.bClipboardFrench)
+        layout.addWidget(self.bClipboardEnglish)
+        layout.addStretch()
         layout.addWidget(self.bSoumission)
         layout.addWidget(self.bShippingLabel)
         layout.addStretch()
 
     # Clicked functi
-    def achat_on_click(self):
-        print("achat")
+    def vente_on_click(self):
+        self.dragarAdmin.vente(self)
+        print("vente")
 
     def soumission_on_click(self):
+        self.dragarAdmin.soumission()
         print("soumission")
+
+    def new_ss_on_click(self):
+        new_ss_id = googlesheet.copy_source_spreadsheet()
+        ss_url = 'https://docs.google.com/spreadsheets/d/' + new_ss_id
+        webbrowser.open(ss_url)
+
+    def french_clipboard_on_click(self):
+        clipboard.fill_french_clipboard()
+        self.bClipboardFrench.setText("Clipboard Filled in french")
+        self.bClipboardFrench.setDisabled(True)
+
+    def english_clipboard_on_click(self):
+        clipboard.fill_english_clipboard()
+        self.bClipboardEnglish.setText("Clipboard Filled in english")
+        self.bClipboardEnglish.setDisabled(True)
 
     def shipping_label_on_click(self):
         # todo: disable shipping label button

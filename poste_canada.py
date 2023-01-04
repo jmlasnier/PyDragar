@@ -21,13 +21,14 @@ std_weight = "10.5"
 
 label_path = "C:/Users/g-lev/My Drive/Dragar Inc/ventes et achats/factures recues/shipping labels/"
 
+
 def poste_can(
         client_email,
         client_name,
         client_adr,
         client_order_id,
         std_sm,
-        self,
+        window,
         dim1_in=std_dim1,
         dim2_in=std_dim2,
         dim3_in=std_dim3,
@@ -91,7 +92,7 @@ def poste_can(
         popup_text_to_display += "\n\nAdresse trouvée:\n" + poste_can_found_adress
         popup_text_to_display += "\n\nPrix estimé : " + shipping_price_brut
         popup_text_to_display += "\nPour confirmer, entrer CVV carte de credit"
-        cvv_input, ok = QInputDialog.getText(self, "Confirmation", popup_text_to_display)
+        cvv_input, ok = QInputDialog.getText(window, "Confirmation", popup_text_to_display)
         cvv_input = str(cvv_input)
         # print("Cvv: ", cvv_input)
         # print("Ok: ", ok)
@@ -107,7 +108,7 @@ def poste_can(
     click_button_when_appears('//*[@id="signinModalLarge"]')
 
     user = "guillaumelevesque"
-    passw = "po194HAX$"
+    passw = "---"
     popup_user_field = '//*[@id="usernameLarge"]'
     popup_pw_field = '//*[@id="passwordLarge"]'
     page_user_field = '//*[@id="f-username"]'
@@ -252,5 +253,4 @@ def poste_can(
     time.sleep(10)
     full_ship_path = label_path + ship_file_name + ".pdf"
 
-    # todo: maybe edit shipping price? from xx.xx to xx,xx (virgule)
     return [full_ship_path, shipping_price_brut]
