@@ -108,7 +108,7 @@ def poste_can(
     click_button_when_appears('//*[@id="signinModalLarge"]')
 
     user = "guillaumelevesque"
-    passw = "---"
+    passw = "po194HAX$"
     popup_user_field = '//*[@id="usernameLarge"]'
     popup_pw_field = '//*[@id="passwordLarge"]'
     page_user_field = '//*[@id="f-username"]'
@@ -146,6 +146,8 @@ def poste_can(
     # créer une etiquette d'expedition
     create_shipping_label = '/html/body/div[1]/cpc-app-root/div[2]/section/div/cpc-home-page/div[2]/div/section[2]/div/cpc-parcel-shipment-card/div[3]/button[1]'
     click_if_exists(create_shipping_label)
+
+    # TODO: etre capable de creer une etiquette mm si cart pas vide
 
     click_button_when_appears('//*[@id="createShipmentFromEmptyCart"]')
 
@@ -214,6 +216,9 @@ def poste_can(
     time.sleep(gran_pause)
     add_to_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[3]/app-summary/div/div/div/div/app-summary-content/div/div/div[2]/button'
     click_button_when_appears(add_to_cart_btn)
+
+    # TODO: re-check montant shipping
+
     confirm_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-cart/div[2]/div/div/div[2]/button'
     click_button_when_appears(confirm_cart_btn)
 
@@ -224,7 +229,7 @@ def poste_can(
     cvv_input_field = '//*[@id="STORED-4022_cvv"]'
     type_when_appears(cvv_input_field, cvv)
 
-    # todo: uncomment click Pay button when rdy to test
+    # un/comment click Pay when testing
     pay_btn = '/html/body/div[2]/div[2]/form/div[7]/div[4]/p/input'
     click_button_when_appears(pay_btn)
     time.sleep(gran_pause)
@@ -250,7 +255,7 @@ def poste_can(
     pyautogui.press(['enter'])
     time.sleep(2)
     pyautogui.hotkey('alt', 's')
-    time.sleep(10)
+    time.sleep(6)
     full_ship_path = label_path + ship_file_name + ".pdf"
 
     return [full_ship_path, shipping_price_brut]
