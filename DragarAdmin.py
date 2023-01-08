@@ -12,8 +12,6 @@ from Couvercle import Couvercle
 from gmailApi import compose_draft
 from Dragar import Dragar
 from Client import Client
-from clipboard import fill_french_clipboard, fill_english_clipboard
-
 
 # ----------------------------  FOR REFERENCE AUTO-PIP-INSTALL -----------------------
 # import subprocess
@@ -112,6 +110,12 @@ class DragarAdmin:
         self.client.fab_name = self.client.sheet.cell(6, 2).value
         self.client.order_ID = self.client.sheet.cell(4, 1).value
         print("client & fab infos retrieved")
+        return [
+            self.client.email,
+            self.client.nom,
+            self.client.livraison,
+            self.client.order_ID,
+        ]
 
     # ----------------------------------------------------------------------------------------------------------------------
     # enregistre le fichier PDF d'une feuille de tableur en fenêtre active
@@ -266,6 +270,7 @@ class DragarAdmin:
                     self.client.email, self.client.nom,
                     self.client.livraison,
                     self.client.order_ID, "S",
+                    weight_lbs="17.5",
                     window=window)
             elif self.couvercle.cover_id[0] == "P":
                 [self.client.shipping_label_path, self.client.shipping_price] = poste_canada.poste_can(
@@ -280,19 +285,17 @@ class DragarAdmin:
             if self.client.shipping_price != 0.1:
                 googlesheet.write_shipping_price_std(self.biz_info.sheet_id, self.client.shipping_price)
                 googlesheet.log_shipping_cost(self.client.shipping_price)
-                # retourner au spreadsheet
-                time.sleep(1)
-                # todo: re-ouvrir la feuille a place de alt tab criss
-                print("returning to spreadsheet")
-                pyautogui.hotkey('alt', 'tab')
-                time.sleep(1)
-                screen_size_x, screen_size_y = pyautogui.size()
-                pyautogui.click(screen_size_x / 2, screen_size_y / 2)
             else:
                 print("10 sec to go back to spreadsheet source")
                 time.sleep(10)
         # else:
         # googlesheet.save_custom_info_for_future_shipping(client.order_ID, client.email, client.nom, client.livraison)
+
+        # retourner au spreadsheet
+        webbrowser.open('https://docs.google.com/spreadsheets/d/' + self.biz_info.sheet_id)
+        time.sleep(10)
+        screen_size_x, screen_size_y = pyautogui.size()
+        pyautogui.click(screen_size_x / 2, screen_size_y / 2)
 
         # enregistrer pdf fichier client
         print("saving client pdf")

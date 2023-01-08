@@ -17,7 +17,7 @@ search_time = 30
 std_dim1 = "19.5"
 std_dim2 = "25.5"
 std_dim3 = "1"
-std_weight = "10.5"
+std_weight = "17.5"
 
 label_path = "C:/Users/g-lev/My Drive/Dragar Inc/ventes et achats/factures recues/shipping labels/"
 
@@ -88,12 +88,15 @@ def poste_can(
 
         # pyautogui.hotkey('alt', 'tab')
 
-        popup_text_to_display = "Adresse cherchée:\n" + client_adr
+        popup_text_to_display = "Adresse cherchée:\n" + client_name + "\n" + client_adr
         popup_text_to_display += "\n\nAdresse trouvée:\n" + poste_can_found_adress
         popup_text_to_display += "\n\nPrix estimé : " + shipping_price_brut
         popup_text_to_display += "\nPour confirmer, entrer CVV carte de credit"
         cvv_input, ok = QInputDialog.getText(window, "Confirmation", popup_text_to_display)
         cvv_input = str(cvv_input)
+
+        if cvv_input == 'non':
+            return [ok, 0.1, cvv_input]
         # print("Cvv: ", cvv_input)
         # print("Ok: ", ok)
         # print('goToNext: ', cvv_input != '' and ok)
@@ -144,11 +147,10 @@ def poste_can(
     click_button_when_appears(open_tool_btn)
 
     # créer une etiquette d'expedition
+    # TODO: avertir user qu'il doit delete son cart
+    # if is_present('//*[@id="ship-ui-delete-icon"]'):
     create_shipping_label = '/html/body/div[1]/cpc-app-root/div[2]/section/div/cpc-home-page/div[2]/div/section[2]/div/cpc-parcel-shipment-card/div[3]/button[1]'
     click_if_exists(create_shipping_label)
-
-    # TODO: etre capable de creer une etiquette mm si cart pas vide
-
     click_button_when_appears('//*[@id="createShipmentFromEmptyCart"]')
 
     # expediteur
@@ -196,28 +198,40 @@ def poste_can(
 
     # expedition
     time.sleep(gran_pause)
-    prodDesc = '//*[@id="servicePanel_productDesciption0"]'
-    # criss = '//*[@id="servicePanel_Colisaccélérés_optionCheckbox7"]'
-    criss = '//*[@id="servicePanel_ExpeditedParcel_optionCheckbox7"]'
-    # esti = '//*[@id="servicePanel_Colisaccélérés_COV"]'
-    esti = '//*[@id="servicePanel_ExpeditedParcel_COV"]'
-    click_button_when_appears(prodDesc)
-    click_button_when_appears(criss)
-    WebDriverWait(driver, search_time).until(ec.visibility_of_element_located((By.XPATH, esti)))
-    driver.find_element(By.XPATH, esti).send_keys("100")
+    prod_desc = '//*[@id="servicePanel_productDesciption0"]'
+    # checkbox = '//*[@id="servicePanel_Colisaccélérés_optionCheckbox7"]'  # french
+    checkbox = '//*[@id="servicePanel_ExpeditedParcel_optionCheckbox7"]'
+    # cov = '//*[@id="servicePanel_Colisaccélérés_COV"]'  # french
+    cov = '//*[@id="servicePanel_ExpeditedParcel_COV"]'
+    click_button_when_appears(prod_desc)
+    click_button_when_appears(checkbox)
+    WebDriverWait(driver, search_time).until(ec.visibility_of_element_located((By.XPATH, cov)))
+    driver.find_element(By.XPATH, cov).send_keys("100")
     click_button_when_appears('//*[@id="serviceNext"]')
 
-    pyautogui.hotkey('alt', 'tab')
+    # go to popup
+    pyautogui.keyDown('alt')
+    time.sleep(.2)
+    pyautogui.press('tab')
+    time.sleep(.2)
+    pyautogui.press('tab')
+    time.sleep(.2)
+    pyautogui.keyUp('alt')
+
     go_to_payment = False
     while go_to_payment is False:
         [go_to_payment, shipping_price_brut, cvv] = popup_summary_info()
+    time.sleep(1)
+
+    if cvv == 'non':
+        return ['', 0.1]
 
     pyautogui.hotkey('alt', 'tab')
     time.sleep(gran_pause)
     add_to_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-shipment/div/div[3]/app-summary/div/div/div/div/app-summary-content/div/div/div[2]/button'
     click_button_when_appears(add_to_cart_btn)
 
-    # TODO: re-check montant shipping
+    # TODO: re-check montant shipping ?
 
     confirm_cart_btn = '/html/body/div[1]/div/main/div/div/app-root/app-cart/div[2]/div/div/div[2]/button'
     click_button_when_appears(confirm_cart_btn)

@@ -1,3 +1,4 @@
+import time
 import webbrowser
 
 from PyQt5 import QtWidgets
@@ -35,7 +36,7 @@ class MyWindow(QMainWindow):
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
 
-        self.setWindowTitle("Dragar Admin")
+        self.setWindowTitle("Admin")
         self.setWindowIcon(QIcon("./dg.png"))
         self.initUI()
         
@@ -57,47 +58,38 @@ class MyWindow(QMainWindow):
         self.llogo = QtWidgets.QLabel(self)
         self.llogo.setPixmap(self.pixmap)
         self.llogo.adjustSize()
-        # self.llogo.move(50, 50)
-        # Optional, resize label to image size
         self.llogo.resize(self.pixmap.width(),
                           self.pixmap.height())
 
 
         ###BUTTONS
-        # self.lPyDragar = QtWidgets.QLabel(self)
-        # self.lPyDragar.setText("Admin Menu")
-        # self.lPyDragar.adjustSize()
-        # self.lPyDragar.setFont(QFont('Arial', 12))
-
         self.bVente = QtWidgets.QPushButton(self)
         self.bVente.setText("Run Vente")
-        # self.bVente.adjustSize()
         self.bVente.clicked.connect(self.vente_on_click)
 
         self.bSoumission = QtWidgets.QPushButton(self)
         self.bSoumission.setText("Run Soumission")
-        # self.bSoumission.adjustSize()
         self.bSoumission.clicked.connect(self.soumission_on_click)
 
         self.bShippingLabel = QtWidgets.QPushButton(self)
         self.bShippingLabel.setText("Run ShippingLabel")
-        # self.bShippingLabel.adjustSize()
         self.bShippingLabel.clicked.connect(self.shipping_label_on_click)
 
         self.bClipboardFrench = QtWidgets.QPushButton(self)
         self.bClipboardFrench.setText("Fill Clipboard French")
-        # self.bClipboardFrench.adjustSize()
         self.bClipboardFrench.clicked.connect(self.french_clipboard_on_click)
 
         self.bClipboardEnglish = QtWidgets.QPushButton(self)
         self.bClipboardEnglish.setText("Fill Clipboard English")
-        # self.bClipboardEnglish.adjustSize()
         self.bClipboardEnglish.clicked.connect(self.english_clipboard_on_click)
 
         self.bNewSS = QtWidgets.QPushButton(self)
         self.bNewSS.setText("New spreadsheet")
-        # self.bNewSS.adjustSize()
         self.bNewSS.clicked.connect(self.new_ss_on_click)
+
+        self.bOpenSource = QtWidgets.QPushButton(self)
+        self.bOpenSource.setText("Open Source docs")
+        self.bOpenSource.clicked.connect(self.open_sources)
 
         mainW = QtWidgets.QWidget()
         layout = QVBoxLayout()
@@ -108,11 +100,12 @@ class MyWindow(QMainWindow):
         # layout.addWidget(self.lPyDragar)
         layout.addWidget(self.bNewSS)
         layout.addWidget(self.bVente)
+        layout.addStretch()
+        layout.addWidget(self.bOpenSource)
         layout.addWidget(self.bClipboardFrench)
         layout.addWidget(self.bClipboardEnglish)
-        layout.addStretch()
-        layout.addWidget(self.bSoumission)
         layout.addWidget(self.bShippingLabel)
+        layout.addWidget(self.bSoumission)
         layout.addStretch()
 
     # Clicked functi
@@ -139,13 +132,19 @@ class MyWindow(QMainWindow):
         self.bClipboardEnglish.setText("Clipboard Filled in english")
         self.bClipboardEnglish.setDisabled(True)
 
+    def open_sources(self):
+        webbrowser.open('https://docs.google.com/spreadsheets/d/1yq2TX19iwdCo2Zs3NAnanseSe4O-YVYJORqhyUedpA4')
+        webbrowser.open('https://docs.google.com/spreadsheets/d/1mkNrHdHcS44TUIVerOXZ-bSweqSz5qw3ZhJbj218hQs')
+        webbrowser.open('https://docs.google.com/spreadsheets/d/1FbiPW_wVv2_MgdHaq3R23bSY9XE2gg91dyFHY-q2rHI')
+        webbrowser.open('https://docs.google.com/spreadsheets/d/1uXbnH4u3Kaq8KXc5E64Furmo39WfxBGaa0nphrz3Su0')
+        webbrowser.open('https://docs.google.com/spreadsheets/d/1ll8PBRPfuSoyz96teXryVYi6vOCjRQR50zzWxUaRlvk')
+
     def shipping_label_on_click(self):
-        # todo: disable shipping label button
-        name_ship = "Jean-Michel Lasnier"
-        email_ship = "guil.lvsq@gmail.com"
-        adress_ship = "133 Rue Lapointe, Lachute, QC J8H 4L8"
-        PO_ship = "D22091865-1"
         type_ship = "S"
+        time.sleep(10)
+        self.dragarAdmin.get_client_spreadsheet()
+        [email_ship, name_ship, adress_ship, PO_ship] = self.dragarAdmin.recuperer_informations_client_fab()
+
         [label_path, shipping_price] = poste_canada.poste_can(email_ship, name_ship, adress_ship, PO_ship, type_ship, self)
         print('label_path: ', label_path)
         print('shipping_price: ', shipping_price)
