@@ -29,25 +29,25 @@ class MyWindow(QMainWindow):
     def __init__(self):
         super(MyWindow, self).__init__()
 
-        self.setGeometry(self.xpos,self.ypos, self.width, self.height)
+        self.setGeometry(self.xpos, self.ypos, self.width, self.height)
 
-        qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.move(qtRectangle.topLeft())
+        qt_rectangle = self.frameGeometry()
+        center_point = QDesktopWidget().availableGeometry().center()
+        qt_rectangle.moveCenter(center_point)
+        self.move(qt_rectangle.topLeft())
 
         self.setWindowTitle("Admin")
         self.setWindowIcon(QIcon("./dg.png"))
-        self.initUI()
+        self.init_ui()
         
         # self.fillReleasedTable()
 
-    def initUI(self):
+    def init_ui(self):
         w = QtWidgets.QWidget()
         self.setCentralWidget(w)
         self.setFont(QFont('Arial', 18))
 
-        ###LABELS
+        # LABELS
         # self.lempty = QtWidgets.QLabel(self)
         # self.lempty.setText("")
         # self.lempty.adjustSize()
@@ -61,8 +61,7 @@ class MyWindow(QMainWindow):
         self.llogo.resize(self.pixmap.width(),
                           self.pixmap.height())
 
-
-        ###BUTTONS
+        # BUTTONS
         self.bVente = QtWidgets.QPushButton(self)
         self.bVente.setText("Run Vente")
         self.bVente.clicked.connect(self.vente_on_click)
@@ -91,10 +90,10 @@ class MyWindow(QMainWindow):
         self.bOpenSource.setText("Open Source docs")
         self.bOpenSource.clicked.connect(self.open_sources)
 
-        mainW = QtWidgets.QWidget()
+        main_w = QtWidgets.QWidget()
         layout = QVBoxLayout()
-        mainW.setLayout(layout)
-        self.setCentralWidget(mainW)
+        main_w.setLayout(layout)
+        self.setCentralWidget(main_w)
 
         layout.addWidget(self.llogo)
         # layout.addWidget(self.lPyDragar)
